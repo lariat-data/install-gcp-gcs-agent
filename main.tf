@@ -184,7 +184,6 @@ data "google_storage_bucket" "lariat_monitored_bucket" {
 resource "google_eventarc_trigger" "trigger_monitoring_workflow" {
   depends_on = [google_project_iam_member.lariat_eventarc_service_agent_iam]
   name = "trigger-lariat-monitoring-workflow"
-  service_account = google_service_account.lariat_service_account.id
   for_each = toset(var.target_gcs_buckets)
 
   # The trigger needs to be in the same region as the target bucket. Buckets may be multi-region e.g. "us" or "asia", or single region like "us-east1"
