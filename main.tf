@@ -185,6 +185,7 @@ resource "google_eventarc_trigger" "trigger_monitoring_workflow" {
   depends_on = [google_project_iam_member.lariat_eventarc_service_agent_iam]
   name = "trigger-lariat-monitoring-workflow"
   for_each = toset(var.target_gcs_buckets)
+  service_account = google_service_account.lariat_service_account.id
 
   # The trigger needs to be in the same region as the target bucket. Buckets may be multi-region e.g. "us" or "asia", or single region like "us-east1"
   # But the string needs to match, so if GCP_REGION us-east1 is set for this installation, we can't use that region string if the bucket is multi-region "us"
