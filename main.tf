@@ -96,13 +96,13 @@ resource "google_service_account" "lariat_service_account" {
   display_name = "Lariat Data Service Account"
 }
 
-resource "google_project_iam_member" "lariat_service_account_iam" {
+resource "google_project_iam_member" "lariat_service_account_iam_cloud_run" {
   project = var.gcp_project_id
   role = "roles/run.admin"
   member = "serviceAccount:${google_service_account.lariat_service_account.email}"
 }
 
-resource "google_project_iam_member" "lariat_service_account_iam" {
+resource "google_project_iam_member" "lariat_service_account_iam_sa" {
   project = var.gcp_project_id
   role = "roles/iam.serviceAccountUser"
   member = "serviceAccount:${google_service_account.lariat_service_account.email}"
