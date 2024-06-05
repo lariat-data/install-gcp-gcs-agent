@@ -117,7 +117,12 @@ resource "google_eventarc_trigger" "trigger_monitoring_workflow" {
   service_account = google_service_account.lariat_service_account.id
   for_each = toset(var.target_gcs_buckets)
 
-  location = var.gcp_region
+  # The trigger needs to be in the same region as the target bucket. but buckets may be multi-region e.g. "us" or "asia", or single region like "us-east1"
+  # TODO: read the region of each bucket using a TF data provider and ensure the location below is set to match it. In the meantime, default to "us"
+
+  # location = var.gcp_region
+  location = "us"
+
   matching_criteria {
       attribute = "type"
       value = "google.cloud.storage.object.v1.finalized"
