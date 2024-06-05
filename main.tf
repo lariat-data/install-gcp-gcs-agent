@@ -96,6 +96,19 @@ resource "google_service_account" "lariat_service_account" {
   display_name = "Lariat Data Service Account"
 }
 
+resource "google_project_iam_member" "lariat_service_account_iam" {
+  project = var.gcp_project_id
+  role = "roles/run.admin"
+  member = "serviceAccount:${google_service_account.lariat_service_account.email}"
+}
+
+resource "google_project_iam_member" "lariat_service_account_iam" {
+  project = var.gcp_project_id
+  role = "roles/iam.serviceAccountUser"
+  member = "serviceAccount:${google_service_account.lariat_service_account.email}"
+}
+
+
 resource "google_cloud_run_v2_job" "lariat_cloud_run_job" {
   depends_on = [google_project_iam_member.lariat_cloud_run_service_agent_iam]
   name = "lariat-gcs-monitoring-job"
