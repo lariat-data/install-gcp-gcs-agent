@@ -36,14 +36,14 @@ resource "google_project_iam_member" "lariat_cloud_run_service_agent_iam" {
 }
 
 resource "google_project_iam_member" "lariat_worfklow_service_agent_iam" {
-  depends_on = [google_project_sevice.workflows_service_enabled]
+  depends_on = [google_project_service.workflows_service_enabled]
   project = var.gcp_project_id
   role = "roles/iam.serviceAccountTokenCreator"
   member = "serviceAccount:service-${data.google_project.user_project.number}@gcp-sa-workflows.iam.gserviceaccount.com"
 }
 
 resource "google_project_iam_member" "lariat_eventarc_service_agent_iam" {
-  depends_on = [google_project_sevice.eventarc_service_enabled]
+  depends_on = [google_project_service.eventarc_service_enabled]
   project = var.gcp_project_id
   role = "roles/iam.serviceAccountTokenCreator"
   member = "serviceAccount:service-${data.google_project.user_project.number}@gcp-sa-eventarc.iam.gserviceaccount.com"
