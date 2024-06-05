@@ -111,17 +111,24 @@ resource "google_workflows_workflow" "lariat_monitoring_workflow" {
   EOF
 }
 
+
+data "google_storage_bucket" "lariat_monitored_bucket" {
+  for_each = toset(var.target_gcs_buckets)
+  name = each.key
+}
+
+
 resource "google_eventarc_trigger" "trigger_monitoring_workflow" {
   depends_on = [google_project_iam_member.lariat_eventarc_service_agent_iam]
   name = "trigger-lariat-monitoring-workflow"
   service_account = google_service_account.lariat_service_account.id
   for_each = toset(var.target_gcs_buckets)
 
-  # The trigger needs to be in the same region as the target bucket. but buckets may be multi-region e.g. "us" or "asia", or single region like "us-east1"
-  # TODO: read the region of each bucket using a TF data provider and ensure the location below is set to match it. In the meantime, default to "us"
+  # The trigger needs to be in the same region as the target bucket. Buckets may be multi-region e.g. "us" or "asia", or single region like "us-east1"
+  # But the string needs to match, so if GCP_REGION us-east1 is set for this installation, we can't use that region string if the bucket is multi-region "us"
 
-  # location = var.gcp_region
-  location = "us"
+  # Lower-case the string so that it matches US => us
+  location = lower(data.google_storage_bucket.lariat_monitored_bucket[each.key].location)
 
   matching_criteria {
       attribute = "type"
@@ -130,7 +137,7 @@ resource "google_eventarc_trigger" "trigger_monitoring_workflow" {
 
   matching_criteria {
     attribute = "bucket"
-    value = each.value
+    value = data.google_storage_bucket.lariat_monitored_bucket[each.key].name
   }
 
   destination {
