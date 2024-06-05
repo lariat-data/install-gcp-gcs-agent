@@ -26,18 +26,11 @@ def get_target_gcs_buckets():
         agent_config = yaml.load(agent_config_file)
 
     buckets = list(agent_config["buckets"].keys())
-    bucket_prefixes = defaultdict(list)
-
-    for bucket in buckets:
-        for config in agent_config["buckets"][bucket]:
-            bucket_prefixes[bucket].append(config["prefix"])
-
-    return bucket_prefixes
+    return buckets
 
 if __name__ == '__main__':
     #validate_agent_config()
-    target_buckets = ['avro_data']
-    #target_bucket_prefixes = get_target_gcs_buckets()
+    target_buckets = get_target_gcs_buckets()
 
     # get existing event notification state for target gcs buckets
     print(f"Installing lariat to GCS buckets {target_buckets}")
