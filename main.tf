@@ -7,6 +7,11 @@ provider "google" {
   access_token = chomp(file("/workspace/gcloud_access_token"))
 }
 
+provider "google-beta" {
+  project = var.gcp_project_id
+  access_token = chomp(file("/workspace/gcloud_access_token"))
+}
+
 data "google_project" "user_project" {
   project_id = var.gcp_project_id
 }
