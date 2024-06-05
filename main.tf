@@ -92,8 +92,9 @@ resource "google_project_iam_member" "lariat_cloud_storage_service_agent_iam" {
 }
 
 resource "google_service_account" "lariat_service_account" {
-  account_id   = "lariat-service-account"
+  account_id   = substr("lariat-service-account-${var.gcp_project_id}", 0, 30)
   display_name = "Lariat Data Service Account"
+  project = var.gcp_project_id
 }
 
 resource "google_project_iam_member" "lariat_service_account_iam_cloud_run" {
@@ -127,7 +128,7 @@ resource "google_workflows_workflow" "lariat_monitoring_workflow" {
   depends_on = [google_project_iam_member.lariat_worfklow_service_agent_iam, google_project_iam_member.lariat_cloud_storage_service_agent_iam]
   name = "lariat-monitoring-workflow"
   region = var.gcp_region
-  service_account = google_service_account.lariat_service_account.id
+  service_account = google_service_account.lariat_service_account.email
 
   source_contents = <<-EOF
   main:
@@ -185,7 +186,7 @@ resource "google_eventarc_trigger" "trigger_monitoring_workflow" {
   depends_on = [google_project_iam_member.lariat_eventarc_service_agent_iam]
   name = "trigger-lariat-monitoring-workflow"
   for_each = toset(var.target_gcs_buckets)
-  service_account = google_service_account.lariat_service_account.id
+  service_account = google_service_account.lariat_service_account.email
 
   # The trigger needs to be in the same region as the target bucket. Buckets may be multi-region e.g. "us" or "asia", or single region like "us-east1"
   # But the string needs to match, so if GCP_REGION us-east1 is set for this installation, we can't use that region string if the bucket is multi-region "us"
