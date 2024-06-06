@@ -60,7 +60,13 @@ resource "google_project_service_identity" "cloud_run_service_identity" {
 
 resource "google_project_iam_member" "lariat_service_account_iam" {
   project = var.gcp_project_id
-  role = "roles/eventarc.eventReceiver"
+  role = "roles/eventarc.admin"
+  member = "serviceAccount:${google_service_account.lariat_service_account.email}"
+}
+
+resource "google_project_iam_member" "lariat_service_account_iam_workflows" {
+  project = var.gcp_project_id
+  role = "roles/workflows.invoker"
   member = "serviceAccount:${google_service_account.lariat_service_account.email}"
 }
 
@@ -83,6 +89,12 @@ resource "google_project_iam_member" "lariat_eventarc_service_agent_iam" {
   project = var.gcp_project_id
   role = "roles/iam.serviceAccountTokenCreator"
   member = "serviceAccount:service-${data.google_project.user_project.number}@gcp-sa-eventarc.iam.gserviceaccount.com"
+}
+
+resource "google_project_iam_member" "lariat_pub_sub_service_agent_iam" {
+  project = var.gcp_project_id
+  role = "roles/iam.serviceAccountTokenCreator"
+  member = "serviceAccount:service-${data.google_project.user_project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
 }
 
 resource "google_project_iam_member" "lariat_cloud_storage_service_agent_iam" {
@@ -125,7 +137,7 @@ resource "google_cloud_run_v2_job" "lariat_cloud_run_job" {
 }
 
 resource "google_workflows_workflow" "lariat_monitoring_workflow" {
-  depends_on = [google_project_iam_member.lariat_worfklow_service_agent_iam, google_project_iam_member.lariat_cloud_storage_service_agent_iam]
+  depends_on = [google_project_iam_member.lariat_worfklow_service_agent_iam, google_project_iam_member.lariat_cloud_storage_service_agent_iam, google_project_iam_member.lariat_pub_sub_service_agent_iam]
   name = "lariat-monitoring-workflow"
   region = var.gcp_region
   service_account = google_service_account.lariat_service_account.email
@@ -140,10 +152,11 @@ resource "google_workflows_workflow" "lariat_monitoring_workflow" {
                 - event_bucket: $${event.data.bucket}
                 - event_file: $${event.data.name}
                 - job_location: ${var.gcp_region}
+                - job_name: ${google_cloud_run_v2_job.lariat_cloud_run_job.name}
         - run_job:
             call: googleapis.run.v1.namespaces.jobs.run
             args:
-                name: ${google_cloud_run_v2_job.lariat_cloud_run_job.id}
+                name: $${"namespaces/" + project_id + "/jobs/" + job_name}
                 location: $${job_location}
                 body:
                     overrides:
