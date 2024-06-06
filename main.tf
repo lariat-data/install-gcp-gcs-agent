@@ -138,6 +138,7 @@ resource "google_cloud_run_v2_job" "lariat_cloud_run_job" {
         }
       }
       timeout = "1800s"
+      max_retries = 0
     }
   }
 
@@ -174,7 +175,7 @@ resource "google_workflows_workflow" "lariat_monitoring_workflow" {
                                 - name: INPUT_FILE
                                   value: $${event_file}
                                 - name: CLOUD_AGENT_CONFIG_PATH
-                                  value: ${google_storage_bucket_object.lariat_gcs_agent_config_object.self_link}
+                                  value: ${google_storage_bucket.lariat_gcs_agent_config_bucket.name}/${google_storage_bucket_object.lariat_gcs_agent_config_object.name}
                                 - name: LARIAT_API_KEY
                                   value: ${var.lariat_api_key}
                                 - name: LARIAT_APPLICATION_KEY
