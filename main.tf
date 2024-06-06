@@ -131,9 +131,16 @@ resource "google_cloud_run_v2_job" "lariat_cloud_run_job" {
     template {
       containers {
         image = "us-east5-docker.pkg.dev/gcs-object-storage-sandbox/lariat-agents/lariat-gcs-agent:latest"
+        resources {
+          limits = {
+            memory = "2056Mi"
+          }
+        }
       }
+      timeout = "1800s"
     }
   }
+
 }
 
 resource "google_workflows_workflow" "lariat_monitoring_workflow" {
