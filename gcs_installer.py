@@ -45,6 +45,7 @@ if __name__ == '__main__':
 
     gcp_region = os.getenv("GCP_REGION")
     gcp_project_id = os.getenv("GCP_PROJECT_ID")
+    gcp_organization_id = os.getenv("GCP_ORGANIZATION_ID")
 
     tf_env = {
         "lariat_api_key": lariat_api_key,
@@ -55,6 +56,7 @@ if __name__ == '__main__':
         "target_gcs_buckets": target_buckets,
         "gcp_region": gcp_region,
         "gcp_project_id": gcp_project_id,
+        "gcp_organization_id": gcp_organization_id,
     }
 
     print("Passing configuration through to terraform")

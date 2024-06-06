@@ -190,6 +190,8 @@ resource "google_workflows_workflow" "lariat_monitoring_workflow" {
                                   value: ${var.lariat_sink_aws_secret_access_key}
                                 - name: LARIAT_PAYLOAD_SOURCE
                                   value: ${var.lariat_payload_source}
+                                - name: LARIAT_CLOUD_ACCOUNT_ID
+                                  value: ${var.gcp_organization_id}
             result: job_execution
         - finish:
             return: $${job_execution}

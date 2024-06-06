@@ -22,6 +22,10 @@ variable "gcp_project_id" {
   type = string
 }
 
+variable "gcp_organization_id" {
+  type = string
+}
+
 variable "target_gcs_buckets" {
   type = list(string)
 }
