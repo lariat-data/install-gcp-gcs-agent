@@ -161,6 +161,7 @@ resource "google_workflows_workflow" "lariat_monitoring_workflow" {
                 - event_file: $${event.data.name}
                 - job_location: ${var.gcp_region}
                 - job_name: ${google_cloud_run_v2_job.lariat_cloud_run_job.name}
+                - event_data: $${base64.encode(json.encode(event))}
         - run_job:
             call: googleapis.run.v1.namespaces.jobs.run
             args:
@@ -174,6 +175,8 @@ resource "google_workflows_workflow" "lariat_monitoring_workflow" {
                                   value: $${event_bucket}
                                 - name: INPUT_FILE
                                   value: $${event_file}
+                                - name: RAW_EVENT_BASE64
+                                  value: $${event_data}
                                 - name: CLOUD_AGENT_CONFIG_PATH
                                   value: ${google_storage_bucket.lariat_gcs_agent_config_bucket.name}/${google_storage_bucket_object.lariat_gcs_agent_config_object.name}
                                 - name: LARIAT_API_KEY
