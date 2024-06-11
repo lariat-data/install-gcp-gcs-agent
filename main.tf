@@ -91,6 +91,13 @@ resource "google_project_iam_member" "lariat_eventarc_service_agent_iam" {
   member = "serviceAccount:service-${data.google_project.user_project.number}@gcp-sa-eventarc.iam.gserviceaccount.com"
 }
 
+resource "google_project_iam_member" "lariat_eventarc_service_agent_iam_bucket" {
+  depends_on = [google_project_service_identity.eventarc_service_identity]
+  project = var.gcp_project_id
+  role = "roles/storage.legacyBucketReader"
+  member = "serviceAccount:service-${data.google_project.user_project.number}@gcp-sa-eventarc.iam.gserviceaccount.com"
+}
+
 resource "google_project_iam_member" "lariat_pub_sub_service_agent_iam" {
   project = var.gcp_project_id
   role = "roles/iam.serviceAccountTokenCreator"
@@ -194,7 +201,7 @@ resource "google_workflows_workflow" "lariat_monitoring_workflow" {
                                 - name: LARIAT_PAYLOAD_SOURCE
                                   value: ${var.lariat_payload_source}
                                 - name: LARIAT_CLOUD_ACCOUNT_ID
-                                  value: ${var.gcp_organization_id}
+                                  value: "${var.gcp_organization_id}"
             result: job_execution
         - finish:
             return: $${job_execution}
@@ -209,7 +216,7 @@ data "google_storage_bucket" "lariat_monitored_bucket" {
 
 
 resource "google_eventarc_trigger" "trigger_monitoring_workflow" {
-  depends_on = [google_project_iam_member.lariat_eventarc_service_agent_iam]
+  depends_on = [google_project_iam_member.lariat_eventarc_service_agent_iam, google_project_iam_member.lariat_eventarc_service_agent_iam_bucket]
   name = "trigger-lariat-monitoring-workflow"
   for_each = toset(var.target_gcs_buckets)
   service_account = google_service_account.lariat_service_account.email
